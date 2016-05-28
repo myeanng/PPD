@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.MaterialDao">
+	
+	
+	
+	<select id="queryByUserid" parameterType="int" resultType="com.ppd.entity.Material">
+		select * from material where usreid = #{userid}
+	</select>
+	
+	
+	<insert id="add" parameterType="com.ppd.entity.Material">
+		insert into material(materialid,usreid,loanid,material,picture,createtime) 
+		values(seq_material.nextval,#{users.userid},#{loan.loanid},#{material},#{picture},#{createtime})
+	</insert>
+	
+	<select id="queryMaterialByLoanid" parameterType="int" resultType="com.ppd.entity.Material">
+		select * from material where loanid=#{loanid} order by createtime asc
+	</select>
+	
+</mapper>

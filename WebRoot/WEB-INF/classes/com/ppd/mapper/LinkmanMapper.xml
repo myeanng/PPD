@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.LinkmanDao">
+	
+	
+	
+	<select id="queryByUserid" parameterType="int" resultType="com.ppd.entity.Linkman">
+		select * from linkman where userid = #{userid}
+	</select>
+	
+	<select id="queryLinkmanByLoanid" parameterType="int" resultType="com.ppd.entity.Linkman">
+		select * from linkman where loanid=#{loanid}
+	</select>
+	
+	<insert id="add" parameterType="com.ppd.entity.Linkman">
+		insert into linkman(linkmanid,userid,loanid,onelinkman,onerelation,onephone,twolinkman,tworelation,twophone) 
+		values(seq_linkman.nextval,#{users.userid},#{loan.loanid},#{onelinkman},#{onerelation},#{onephone},#{twolinkman},#{tworelation},#{twophone})
+	</insert>
+</mapper>

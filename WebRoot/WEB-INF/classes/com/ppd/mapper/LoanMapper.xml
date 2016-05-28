@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.LoanDao">
+	
+	<resultMap type="com.ppd.entity.Loan" id="loan">
+	  	<id column="loanid" property="loanid"/>
+	  	<result column="loanuse" property="loanuse"/>
+	  	<result column="title" property="title"/>
+	  	<result column="loanmoney" property="loanmoney"/>
+	  	<result column="loantime" property="loantime"/>
+	  	<result column="service" property="service"/>
+	  	<result column="rate" property="rate"/>
+	  	<result column="class" property="class_"/>
+	  	<result column="describe" property="describe"/>
+	  	<result column="raise" property="raise"/>
+	  	<result column="createtime" property="createtime"/>
+	  	<result column="accrualtime" property="accrualtime"/>
+	  	<result column="status" property="status"/>
+	</resultMap>
+	
+	<resultMap type="com.ppd.entity.Loan" id="loanMap" extends="loan">
+		<association property="users" resultMap="com.ppd.dao.UsersDao.users"/>
+	</resultMap>
+	
+	  
+	
+	<!-- 统计借款人次	-->
+	<select id="countLoan" resultType="int">
+		select count(loanid) from loan
+	</select>
+	
+	<select id="findTop" resultType="com.ppd.entity.Loan" resultMap="loanMap">
+		select * from loan l left join users u on l.USERID = u.USERID where l.status = 4
+	</select>
+	
+	
+	<!-- 修改借款项目状态      用于后台对项目的管理   	-->
+	<select id="updateLoanStatus" parameterType="int">
+		update LOAN set STATUS = #{status} where LOANID = #{loanid}
+	</select>
+	<!-- 根据借款项目ID查询      	-->
+	<select id="findLoanById" parameterType="int" resultType="com.ppd.entity.Loan"  resultMap="loanMap">
+		select * from loan l left join users u on l.USERID = u.USERID where l.LOANID = #{loanid}
+	</select>
+	<!-- 根据用户ID 和 借款项目状态查询 	 -->
+	<select id="findLoanByUserIdandStatus" parameterType="com.ppd.entity.Loan" resultType="com.ppd.entity.Loan">
+		select * from loan where userid = #{users.userid} and status = #{status}
+	</select>
+	<!-- 根据用户ID 查询 	 -->
+	<select id="findLoanByUserId" parameterType="com.ppd.entity.Loan"  resultMap="loanMap">
+		SELECT * from LOAN l LEFT JOIN USERS u ON l.USERID = u.USERID WHERE l.USERID = #{users.userid}
+	</select>
+	
+	<!-- 分页 	 --><!-- 根据借款项目状态查询   	-->
+	<select id="findLoanByStatus" parameterType="com.ppd.entity.Loan" resultType="com.ppd.entity.Loan" resultMap="loanMap">
+		select * from loan l left join users u on l.USERID = u.USERID where l.status = #{status}
+	</select>
+	<!-- 查看所有借款项目	-->
+	<select id="findAll" parameterType="com.ppd.entity.Loan" resultMap="loanMap">
+		select * from loan l left join users u on l.USERID = u.USERID where l.status = 4
+		
+	</select>
+	
+	<select id="queryByParam" resultType="com.ppd.entity.Loan" parameterType="com.ppd.entity.Loan">
+  	select 
+  	loanid,
+	loanuse,
+	title,
+	loanmoney,
+	loantime,
+	service,
+	rate,
+	class,
+	describe,
+	raise,
+	createtime,
+	accrualtime,
+	status
+  	from loan 
+	<where>
+	<if test="loanid !=null and loanid != ''" >
+		userid = #{users.userid} and  loanid = #{loanid}
+	</if>
+	<if test="status !=null and status != ''" >
+		<if test="status !=99">
+			userid = #{users.userid} and  status = #{status}
+		</if>
+		<if test="status ==99">
+			userid = #{users.userid} and  status in (1,3,4,6,7,8,9)
+		</if>
+	</if>	
+	</where>
+  </select>
+  <select id="findLoanmoney" resultType="double" parameterType="int">
+  	select
+	sum(loanmoney)
+  	from loan 
+	where userid = #{id} and  status in (1,3,4,6,7,9)
+  </select>
+  
+  <insert id="add" parameterType="com.ppd.entity.Loan">
+		insert into loan(loanid,userid,loanuse,title,loanmoney,loantime,service,rate,describe,raise,createtime,status) 
+		values(seq_loan.nextval,#{users.userid},#{loanuse},#{title},#{loanmoney},#{loantime},#{service},#{rate},
+		#{describe},#{raise},#{createtime},#{status})
+	</insert>
+	
+	<!-- 修改  当前 融资金额	-->
+	<update id="updateraise" parameterType="com.ppd.entity.Loan" >
+	    update loan set raise=#{raise} where loanid=#{loanid}
+	</update>
+	
+	<resultMap type="com.ppd.entity.Loan" id="loanMap2">
+	  	<id column="lloanid" property="loanid"/>
+	  	<result column="lloanuse" property="loanuse"/>
+	  	<result column="ltitle" property="title"/>
+	  	<result column="lloanmoney" property="loanmoney"/>
+	  	<result column="lloantime" property="loantime"/>
+	  	<result column="lservice" property="service"/>
+	  	<result column="lrate" property="rate"/>
+	  	<result column="lclass" property="class_"/>
+	  	<result column="ldescribe" property="describe"/>
+	  	<result column="lraise" property="raise"/>
+	  	<result column="lcreatetime" property="createtime"/>
+	  	<result column="laccrualtime" property="accrualtime"/>
+	  	<result column="lstatus" property="status"/>
+	  	<collection property="repaymentplans" ofType="com.ppd.entity.Repaymentplan">
+	  		<id column="rrepaymentplanid" property="repaymentplanid"/>
+		  	<result column="rperiod" property="period"/>
+		  	<result column="rrate" property="rate"/>
+		  	<result column="rprincipal" property="principal"/>
+		  	<result column="rinterest" property="interest"/>
+		  	<result column="rshouldtime" property="shouldtime"/>
+	  	</collection>
+	  	<collection property="investrecords" ofType="com.ppd.entity.Investrecord">
+	  		<id column="iinvestid" property="investid"/>
+		  	<result column="imoney" property="money"/>
+		  	<result column="iinvesttime" property="investtime"/>
+		  	<result column="irate" property="rate"/>
+		  	<association property="users" javaType="com.ppd.entity.Users">
+		  		<id column="uuserid" property="userid"/>
+		  		<result column="uusername" property="username"/>
+		  	</association>
+	  	</collection>
+	  	
+	</resultMap>
+	
+	<select id="findLoanbyID" resultMap="loanMap2" parameterType="int">
+  	select 
+  	l.loanid   lloanid,
+	l.loanuse   lloanuse,
+	l.title   ltitle,
+	l.loanmoney   lloanmoney,
+	l.loantime   lloantime,
+	l.service   lservice,
+	l.rate   lrate,
+	l.class   lclass,
+	l.describe   ldescribe,
+	l.raise   lraise,
+	l.createtime   lcreatetime,
+	l.accrualtime   laccrualtime,
+	l.status   lstatus,
+	
+	r.repaymentplanid   rrepaymentplanid,
+	r.period   rperiod,
+	r.rate   rrate,
+	r.principal   rprincipal,
+	r.interest   rinterest,
+	r.shouldtime   rshouldtime,
+	
+	i.investid   iinvestid,
+	i.money   imoney,
+	i.investtime   iinvesttime,
+	i.rate   irate,
+	
+	u.userid   uuserid,
+	u.username   uusername
+	
+  	from loan   l ,repaymentplan   r ,investrecord  i ,users   u
+	<where>
+		l.loanid=r.loanid and l.loanid=i.loanid and i.userid=u.userid and l.loanid=#{id}
+	</where>
+  </select>
+  
+  
+</mapper>

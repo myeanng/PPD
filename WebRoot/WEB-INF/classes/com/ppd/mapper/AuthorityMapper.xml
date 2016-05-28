@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.AuthorityDao">
+
+	<select id="queryAll" parameterType="int" resultType="com.ppd.entity.Authority">
+		select * from authority
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.InvestrecordDao">
+	
+	<resultMap type="com.ppd.entity.Investrecord" id="investrecordMap">
+		<id column="investid" property="investid"/>
+		<result column="investtime" property="investtime"/>
+		<result column="money" property="money"/>
+		<result column="rate" property="rate"/>
+		<association property="loan" javaType="com.ppd.entity.Loan">
+			<id column="loanid" property="loanid"/>
+			<result column="loanuse" property="loanuse"/>
+			<result column="title" property="title"/>
+			<result column="loanmoney" property="loanmoney"/>
+			<result column="loantime" property="loantime"/>
+			<result column="service" property="service"/>
+			<result column="rate" property="rate"/>
+			<result column="class" property="class_"/>
+			<result column="describe" property="describe"/>
+			<result column="raise" property="raise"/>
+			<result column="createtime" property="createtime"/>
+			<result column="accrualtime" property="accrualtime"/>
+			<result column="status" property="status"/>
+		</association>
+	</resultMap>
+	
+	<resultMap type="com.ppd.entity.Investrecord" id="investMap">
+		<id column="investid" property="investid"/>
+		<result column="investtime" property="investtime"/>
+		<result column="money" property="money"/>
+		<result column="rate" property="rate"/>
+	</resultMap>
+	
+	<resultMap type="com.ppd.entity.Investrecord" id="irMap" extends="investMap">
+		<association property="users" resultMap="com.ppd.dao.UsersDao.users"/>
+		<association property="loan" resultMap="com.ppd.dao.LoanDao.loan"/>
+	</resultMap>
+	
+	<resultMap type="com.ppd.entity.Investrecord" id="investusers" extends="investMap">
+		<association property="users" resultMap="com.ppd.dao.UsersDao.users"/>
+	</resultMap>
+
+	<select id="findAll" resultType="com.ppd.entity.Investrecord"  resultMap="investrecordMap">
+		select * from investrecord i,users u where i.USERID=u.USERID
+	</select>
+	
+	<select id="findByUserId" parameterType="int" resultType="com.ppd.entity.Investrecord" resultMap="investrecordMap">
+		select * from INVESTRECORD i,loan l 
+		where i.LOANID = l.LOANID and i.USERID = #{userid}
+	</select>
+	
+	<!-- 查看个人总投资排行	-->
+	<select id="findPersonAllInvest" parameterType="int" resultType="com.ppd.entity.Investrecord">
+		select USERID,SUM(MONEY) m from INVESTRECORD GROUP BY USERID ORDER BY m DESC
+	</select>
+	
+	<!-- 查看个人 单笔投资排行	-->
+	<select id="findPersonOneInvest" parameterType="int" resultType="com.ppd.entity.Investrecord">
+		select USERID,MAX(MONEY) m from INVESTRECORD GROUP BY USERID ORDER BY m DESC
+	</select>
+	
+	<!-- 统计投资人次	-->
+	<select id="countInvest" resultType="int">
+		select count(investid) from INVESTRECORD
+	</select>
+	
+	<!-- 按利率统计投资金额	-->
+	<select id="findInvestByRate" resultType="com.ppd.entity.Investrecord">
+		SELECT rate,sum(money) money from INVESTRECORD GROUP BY RATE
+	</select>
+	
+	<!-- 按借款期数统计投资金额	-->
+	<select id="findInvestByLoantime" resultType="com.ppd.entity.Loan">
+		SELECT l.LOANTIME,sum(i.MONEY) LOANMONEY from INVESTRECORD i LEFT JOIN LOAN l ON i.LOANID = l.LOANID GROUP BY l.LOANTIME
+	</select>
+	
+	<!-- 查看单个项目的投资记录	-->
+	<select id="findInvestByLoanId" resultMap="investusers" parameterType="com.ppd.entity.Loan">
+		SELECT * from INVESTRECORD i LEFT JOIN users u on i.USERID = u.USERID WHERE i.loanID = #{loanid}
+	</select>
+	<!-- 添加  投资记录	-->
+	<insert id="addinvestrecord" parameterType="com.ppd.entity.Investrecord">
+		INSERT INTO INVESTRECORD (INVESTID,USERID,LOANID,MONEY,INVESTTIME,RATE)
+		 VALUES (seq_investrecord.nextval,#{users.userid},#{loan.loanid},#{money},#{investtime},#{rate})
+	</insert>
+	
+	
+	
+</mapper>

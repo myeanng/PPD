@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.EmployeeDao">
+	
+	<select id="login" resultType="com.ppd.entity.Employee">
+		select * from employee where empname = #{empname} and loginpassword = #{loginpassword}
+	</select>
+	<insert id="add" parameterType="com.ppd.entity.Employee">
+	insert into employee(empid,roleid,empname,tel,address,loginpassword,createtime,ic,status)
+	values (seq_employee.nextval,#{roleid},#{empname},#{tel},#{address},#{loginpassword},#{createtime},#{ic},#{status})
+	</insert>
+</mapper>

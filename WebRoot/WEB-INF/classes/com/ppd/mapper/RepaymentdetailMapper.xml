@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "http://mybatis.org/dtd/mybatis-3-mapper.dtd" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.ppd.dao.RepaymentdetailDao">
+  <select id="findSumPrinAndInter" resultType="String" parameterType="com.ppd.entity.Users">
+  	SELECT SUM(PRINCIPAL+INTEREST) from REPAYMENTDETAIL where USERID = #{userid}
+  </select>
+  
+  <insert id="add" parameterType="com.ppd.entity.Repaymentdetail">
+  	insert into repaymentdetail (repaymentdetailid,
+	userid,
+	loanid,
+	period,
+	rate,
+	principal,
+	interest,
+	status,
+	fine,
+	shouldtime,
+	repaytime ) values(seq_repaymentdetail.nextval,#{users.userid},#{loan.loanid},#{period},#{rate},#{principal},#{interest},#{status},#{fine},#{shouldtime},SYSDATE)
+  </insert>
+  
+  <select id="queryByParam" resultType="com.ppd.entity.Repaymentdetail" parameterType="com.ppd.entity.Repaymentdetail" >
+  	select repaymentdetailid,
+	period,
+	rate,
+	principal,
+	interest,
+	status,
+	fine,
+	shouldtime,
+	repaytime from repaymentdetail where userid=#{users.userid} and loanid=#{loan.loanid}
+  </select>
+</mapper>
